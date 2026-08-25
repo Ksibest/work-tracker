@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Рабочий журнал</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--bg:#080c14;--surface:#0f1624;--surface2:#161e30;--border:#1e2a3d;--border2:#243147;--text:#e2e8f0;--muted:#4a5a72;--dim:#2d3f58;--blue:#3b82f6;--cyan:#06b6d4;--green:#22c55e;--orange:#f97316;--red:#ef4444;--purple:#a78bfa;--yellow:#eab308;--radius:14px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:100px}
+.topbar{background:rgba(8,12,20,.95);border-bottom:1px solid var(--border);padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:17px;font-weight:700}
+.topbar p{font-size:11px;color:var(--muted);margin-top:1px}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:99}
+.tab{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.content{padding:16px;max-width:520px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-date{font-size:15px;font-weight:700}
+.card-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px}
+.section{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.slabel{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;width:100%}
+.field input:focus{border-color:var(--blue)}
+.field select option{background:#161e30}
+.obj-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.obj-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.obj-num{font-size:10px;font-weight:700;color:var(--muted)}
+.obj-badge{font-size:11px;color:var(--cyan);font-weight:600}
+.btn{cursor:pointer;font-family:inherit;font-weight:600;border-radius:9px}
+.btn-primary{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;border:none;padding:11px 18px;font-size:13px}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--muted);padding:5px 10px;font-size:11px}
+.btn-danger{background:none;border:none;color:#ef444460;font-size:14px;padding:4px;cursor:pointer}
+.btn-add{background:#0c2040;border:1px solid rgba(59,130,246,.3);color:var(--blue);padding:7px 12px;font-size:12px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+.result-row:last-child{border-bottom:none}
+.result-label{color:var(--muted)}
+.result-val{font-weight:600}
+.over-box{margin-top:10px;padding:10px 14px;border-radius:9px}
+.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;margin-bottom:16px}
+.strip-cell{text-align:center}
+.strip-val{font-size:15px;font-weight:700}
+.strip-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.month-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.month-nav{background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
+.month-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.stat-box .val{font-size:20px;font-weight:700}
+.stat-box .lbl{font-size:11px;color:var(--muted);margin-top:3px}
+.day-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.day-row-date{font-size:13px;font-weight:700;min-width:50px}
+.day-row-body{flex:1}
+.day-row-hours{font-size:13px;font-weight:600;color:var(--cyan)}
+.day-row-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.day-row-over{font-size:12px;font-weight:700;min-width:55px;text-align:right}
+.empty{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:14px}
+.fab{position:fixed;bottom:24px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border:none;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(59,130,246,.5);cursor:pointer;z-index:200}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(40px);transition:transform .25s}
+.overlay.open .sheet{transform:translateY(0)}
+.handle{width:40px;height:4px;background:var(--dim);border-radius:4px;margin:0 auto 16px}
+.sheet-title{font-size:17px;font-weight:700;margin-bottom:16px}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.action-btn{padding:14px 8px;border-radius:10px;border:none;font-family:inherit;font-weight:600;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.action-btn .ico{font-size:24px}
+.ab-orange{background:#1a0e04;border:1px solid rgba(249,115,22,.4);color:var(--orange)}
+.ab-purple{background:#120c1f;border:1px solid rgba(167,139,250,.4);color:var(--purple)}
+.ab-blue{background:#0c2040;border:1px solid rgba(59,130,246,.4);color:var(--blue)}
+.ab-green{background:#052010;border:1px solid rgba(34,197,94,.4);color:var(--green)}
+.period-wrap{border-top:1px solid var(--border);padding-top:14px;margin-top:4px}
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ptab{padding:7px 12px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.ptab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.fullscreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column}
+.fs-bar{background:#1d4ed8;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.fs-bar-title{color:#fff;font-weight:700;font-size:15px}
+.fs-btn{background:rgba(255,255,255,.2);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.fs-btn-white{background:#fff;color:#1d4ed8;border:none;padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.dtype-btn{padding:10px 4px;border-radius:10px;border:2px solid var(--border2);background:var(--surface2);color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+.photos-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.photo-thumb{width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+.photo-add{width:72px;height:72px;border-radius:8px;border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:24px;background:var(--bg)}
+.photo-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-wrap{position:relative;display:inline-block}
+.photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9999;display:flex;align-items:center;justify-content:center}
+.photo-viewer img{max-width:95vw;max-height:90vh;border-radius:8px}
+.photo-viewer-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer}
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+.login-logo{font-size:64px;margin-bottom:16px}
+.login-title{font-size:22px;font-weight:700;margin-bottom:8px;text-align:center}
+.login-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:32px;line-height:1.6}
+.login-btn{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.login-note{font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6}
+.dtype-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;vertical-align:middle}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{filter:invert(.5)}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">&#128203;</div>
+  <div class="login-title">&#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1078;&#1091;&#1088;&#1085;&#1072;&#1083;</div>
+  <div class="login-sub">&#1044;&#1072;&#1085;&#1085;&#1099;&#1077; &#1089;&#1086;&#1093;&#1088;&#1072;&#1085;&#1103;&#1102;&#1090;&#1089;&#1103; &#1074; &#1090;&#1074;&#1086;&#1081; Google Drive.<br>&#1044;&#1086;&#1089;&#1090;&#1091;&#1087;&#1085;&#1099; &#1089; &#1083;&#1102;&#1073;&#1086;&#1075;&#1086; &#1091;&#1089;&#1090;&#1088;&#1086;&#1081;&#1089;&#1090;&#1074;&#1072; &#1080; &#1073;&#1088;&#1072;&#1091;&#1079;&#1077;&#1088;&#1072;.</div>
+  <button class="login-btn" id="signin-btn">&#128273; &#1042;&#1086;&#1081;&#1090;&#1080; &#1095;&#1077;&#1088;&#1077;&#1079; Google</button>
+  <div class="login-note">&#1055;&#1088;&#1080;&#1083;&#1086;&#1078;&#1077;&#1085;&#1080;&#1077; &#1089;&#1086;&#1093;&#1088;&#1072;&#1085;&#1080;&#1090; &#1086;&#1076;&#1080;&#1085; &#1092;&#1072;&#1081;&#1083;<br>&#1074; &#1090;&#1074;&#1086;&#1081; Google Drive</div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div><h1>&#128203; &#1056;&#1072;&#1073;&#1086;&#1095;&#1080;&#1081; &#1078;&#1091;&#1088;&#1085;&#1072;&#1083;</h1><p id="topDate"></p></div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <span id="sync-status" style="font-size:11px;color:var(--muted)"></span>
+      <button class="btn btn-ghost" id="export-btn" style="font-size:18px;padding:6px 10px">&#128228;</button>
+      <button class="btn btn-ghost" id="signout-btn" style="font-size:12px;padding:6px 10px">&#1042;&#1099;&#1081;&#1090;&#1080;</button>
+      <button class="btn btn-primary" id="newday-btn" style="padding:9px 14px;font-size:12px">+ &#1044;&#1077;&#1085;&#1100;</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tab-today">&#1057;&#1077;&#1075;&#1086;&#1076;&#1085;&#1103;</div>
+    <div class="tab" id="tab-month">&#1052;&#1077;&#1089;&#1103;&#1094;</div>
+    <div class="tab" id="tab-all">&#1042;&#1089;&#1077; &#1076;&#1085;&#1080;</div>
+  </div>
+  <div class="content" id="content"></div>
+  <button class="fab" id="fab-btn">+</button>
+</div>
+
+<div class="overlay" id="day-overlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title" id="day-title">&#1053;&#1086;&#1074;&#1099;&#1081; &#1076;&#1077;&#1085;&#1100;</div>
+    <div id="day-form"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ex-overlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="sheet-title" style="margin-bottom:0">&#128228; &#1069;&#1082;&#1089;&#1087;&#1086;&#1088;&#1090; &#1080; &#1086;&#1090;&#1095;&#1105;&#1090;&#1099;</div>
+      <button class="btn btn-ghost" id="ex-close">&#10005;</button>
+    </div>
+    <div class="action-grid">
+      <button class="action-btn ab-orange" id="rep-print"><span class="ico">&#128424;</span>&#1055;&#1077;&#1095;&#1072;&#1090;&#1100;/PDF</button>
+      <button class="action-btn ab-purple" id="rep-share"><span class="ico">&#128232;</span>&#1055;&#1086;&#1076;&#1077;&#1083;&#1080;&#1090;&#1100;&#1089;&#1103;</button>
+    </div>
+    <div class="action-grid">
+      <button class="action-btn ab-blue" id="rep-print-photo"><span class="ico">&#128444;</span>PDF &#1089; &#1092;&#1086;&#1090;&#1086;</button>
+      <button class="action-btn ab-green" id="rep-share-photo"><span class="ico">&#128247;</span>&#1057; &#1092;&#1086;&#1090;&#1086;</button>
+    </div>
+    <div class="period-wrap">
+      <div class="slabel" style="margin-bottom:10px">&#1055;&#1077;&#1088;&#1080;&#1086;&#1076; &#1076;&#1083;&#1103; &#1086;&#1090;&#1095;&#1105;&#1090;&#1072;</div>
+      <div class="ptabs" id="period-tabs">
+        <button class="ptab active" data-period="month">&#1069;&#1090;&#1086;&#1090; &#1084;&#1077;&#1089;&#1103;&#1094;</button>
+        <button class="ptab" data-period="3m">3 &#1084;&#1077;&#1089;&#1103;&#1094;&#1072;</button>
+        <button class="ptab" data-period="6m">6 &#1084;&#1077;&#1089;&#1103;&#1094;&#1077;&#1074;</button>
+        <button class="ptab" data-period="year">&#1043;&#1086;&#1076;</button>
+        <button class="ptab" data-period="custom">&#1057;&#1074;&#1086;&#1081;</button>
+      </div>
+      <div id="custom-range" style="display:none;margin-bottom:10px">
+        <div class="grid2">
+          <div class="field"><label>&#1057;</label><input type="date" id="range-from"></div>
+          <div class="field"><label>&#1055;&#1086;</label><input type="date" id="range-to"></div>
+        </div>
+      </div>
+      <div id="period-info" style="font-size:12px;color:var(--muted)"></div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="photo-input" accept="image/*" multiple style="display:none">
+
+<script>
+var CLIENT_ID = '796026241753-bahbqfi6ac8m28g9dahjofbae68jh3jh.apps.googleusercontent.com';
+var SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+var FILE_NAME = 'work-journal-data.json';
+var NORM = 480;
+
+var data = [];
+var curTab = 'today';
+var editId = null;
+var curMonth = new Date().getMonth();
+var curYear = new Date().getFullYear();
+var curPeriod = 'month';
+var formState = null;
+var accessToken = null;
+var driveFileId = null;
+var saveTimer = null;
+var photoTargetDayId = null;
+var photoTargetObjId = null;
+
+var DTYPE = {
+  work:      { label: 'Рабочий',        icon: '💼', color: 'var(--cyan)'   },
+  trip:      { label: 'Командировка',   icon: '🚀', color: 'var(--blue)'   },
+  tripnight: { label: 'Ночёвка',        icon: '🏨', color: 'var(--yellow)' },
+  rest:      { label: 'Выходной',       icon: '🌿', color: 'var(--green)'  },
+  sick:      { label: 'Больничный',     icon: '🤒', color: 'var(--orange)' },
+  vacation:  { label: 'Отпуск',         icon: '🌴', color: 'var(--purple)' }
+};
+
+function isWorkDay(dtype) {
+  return dtype === 'work' || dtype === 'trip' || dtype === 'tripnight';
+}
+
+// ---- INIT ----
+document.getElementById('topDate').textContent = new Date().toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
+
+document.getElementById('signin-btn').onclick = signIn;
+document.getElementById('signout-btn').onclick = signOut;
+document.getElementById('newday-btn').onclick = openNewDay;
+document.getElementById('fab-btn').onclick = openNewDay;
+document.getElementById('export-btn').onclick = openExport;
+document.getElementById('ex-close').onclick = closeExport;
+document.getElementById('tab-today').onclick = function(){ switchTab('today'); };
+document.getElementById('tab-month').onclick = function(){ switchTab('month'); };
+document.getElementById('tab-all').onclick = function(){ switchTab('all'); };
+document.getElementById('rep-print').onclick = function(){ doReport('print', false); };
+document.getElementById('rep-share').onclick = function(){ doReport('share', false); };
+document.getElementById('rep-print-photo').onclick = function(){ doReport('print', true); };
+document.getElementById('rep-share-photo').onclick = function(){ doReport('share', true); };
+document.getElementById('photo-input').onchange = onPhotoSelected;
+document.getElementById('day-overlay').onclick = function(e){ if(e.target === this) closeDayOverlay(); };
+document.getElementById('ex-overlay').onclick = function(e){ if(e.target === this) closeExport(); };
+
+document.querySelectorAll('.ptab').forEach(function(btn) {
+  btn.onclick = function() {
+    curPeriod = this.getAttribute('data-period');
+    document.querySelectorAll('.ptab').forEach(function(b){ b.classList.remove('active'); });
+    this.classList.add('active');
+    document.getElementById('custom-range').style.display = curPeriod === 'custom' ? 'block' : 'none';
+    updatePeriodInfo();
+  };
+});
+
+// ---- AUTH ----
+function signIn() {
+  var client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: function(resp) {
+      if (resp.error) { alert('Ошибка входа: ' + resp.error); return; }
+      accessToken = resp.access_token;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadFromDrive();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function signOut() {
+  if (!confirm('Выйти?')) return;
+  accessToken = null; driveFileId = null; data = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ---- DRIVE ----
+function setSyncStatus(msg, col) {
+  var el = document.getElementById('sync-status');
+  el.textContent = msg;
+  el.style.color = col || 'var(--muted)';
+}
+
+function loadFromDrive() {
+  setSyncStatus('⟳ Загрузка...', 'var(--cyan)');
+  fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)&q=name%3D%22' + FILE_NAME + '%22', {
+    headers: { 'Authorization': 'Bearer ' + accessToken }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.files && res.files.length > 0) {
+      driveFileId = res.files[0].id;
+      return fetch('https://www.googleapis.com/drive/v3/files/' + driveFileId + '?alt=media', {
+        headers: { 'Authorization': 'Bearer ' + accessToken }
+      }).then(function(r) { return r.json(); });
+    }
+    return null;
+  })
+  .then(function(d) {
+    if (d && Array.isArray(d)) data = d;
+    setSyncStatus('✓ Синхронизировано');
+    render();
+  })
+  .catch(function(e) { setSyncStatus('⚠ Ошибка'); render(); });
+}
+
+function save() {
+  if (!accessToken) return;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 1000);
+}
+
+function doSave() {
+  setSyncStatus('⟳ Сохранение...', 'var(--cyan)');
+  var json = JSON.stringify(data);
+  if (driveFileId) {
+    fetch('https://www.googleapis.com/upload/drive/v3/files/' + driveFileId + '?uploadType=media', {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: json
+    }).then(function() { setSyncStatus('✓ Сохранено'); }).catch(function() { setSyncStatus('⚠ Ошибка'); });
+  } else {
+    var meta = JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] });
+    var form = new FormData();
+    form.append('metadata', new Blob([meta], { type: 'application/json' }));
+    form.append('file', new Blob([json], { type: 'application/json' }));
+    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + accessToken },
+      body: form
+    }).then(function(r) { return r.json(); }).then(function(res) {
+      driveFileId = res.id; setSyncStatus('✓ Сохранено');
+    }).catch(function() { setSyncStatus('⚠ Ошибка'); });
+  }
+}
+
+// ---- HELPERS ----
+function toMin(t) { if (!t) return 0; var p = t.split(':'); return parseInt(p[0]) * 60 + parseInt(p[1]); }
+function hm(m) { if (!m || m <= 0) return '0ч 0м'; return Math.floor(Math.abs(m) / 60) + 'ч ' + (Math.abs(m) % 60) + 'м'; }
+function hmsign(m) { if (m === 0) return '0'; return (m > 0 ? '+' : '-') + hm(Math.abs(m)); }
+function fmtDate(s) { if (!s) return ''; return new Date(s + 'T00:00:00').toLocaleDateString('ru-RU', {weekday:'short', day:'numeric', month:'short'}); }
+function fmtDateFull(s) { if (!s) return ''; return new Date(s + 'T00:00:00').toLocaleDateString('ru-RU', {day:'numeric', month:'long', year:'numeric'}); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+function eid(id) { return document.getElementById(id); }
+
+function calcDay(d) {
+  var dtype = d.dtype || 'work';
+  if (!isWorkDay(dtype)) return { work:0, over:0, objMin:0, road:0, lunch:0, objKm:0 };
+  var total = (d.dayStart && d.dayEnd) ? toMin(d.dayEnd) - toMin(d.dayStart) : 0;
+  var lunch = (d.lunchStart && d.lunchEnd) ? toMin(d.lunchEnd) - toMin(d.lunchStart) : 0;
+  var work = total - lunch;
+  var objMin = (d.objects || []).reduce(function(s, o) { return s + ((o.ts && o.te) ? toMin(o.te) - toMin(o.ts) : 0); }, 0);
+  var objKm = (d.objects || []).reduce(function(s, o) { return s + (parseFloat(o.km) || 0); }, 0);
+  var road = parseInt(d.roadMin) || 0;
+  return { work: work, over: work - NORM, objMin: objMin, road: road, lunch: lunch, objKm: objKm };
+}
+
+// ---- TABS ----
+function switchTab(t) {
+  curTab = t;
+  ['today','month','all'].forEach(function(x) { eid('tab-' + x).classList.remove('active'); });
+  eid('tab-' + t).classList.add('active');
+  render();
+}
+
+// ---- RENDER ----
+function render() {
+  var c = eid('content');
+  if (curTab === 'today') renderToday(c);
+  else if (curTab === 'month') renderMonth(c);
+  else renderAll(c);
+}
+
+function renderToday(c) {
+  var today = new Date().toISOString().slice(0, 10);
+  var d = data.find(function(x) { return x.date === today; });
+  if (!d) { c.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Сегодня записей нет.<br>Нажми + чтобы начать</div></div>'; return; }
+  c.innerHTML = renderCard(d);
+}
+
+function renderAll(c) {
+  if (!data.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">📂</div><div class="empty-text">Нет записей</div></div>'; return; }
+  var sorted = data.slice().sort(function(a, b) { return b.date.localeCompare(a.date); });
+  var tot = sorted.reduce(function(a, d) { var cv = calcDay(d); a.work += cv.work; a.over += cv.over; a.km += (d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0); a.road += cv.road; return a; }, { work:0, over:0, km:0, road:0 });
+  var oc = tot.over > 0 ? 'var(--orange)' : tot.over < 0 ? 'var(--red)' : 'var(--green)';
+  var html = '<div class="summary-strip">'
+    + '<div class="strip-cell"><div class="strip-val" style="color:var(--cyan)">' + hm(tot.work) + '</div><div class="strip-lbl">Часов</div></div>'
+    + '<div class="strip-cell"><div class="strip-val" style="color:' + oc + '">' + hmsign(tot.over) + '</div><div class="strip-lbl">Переработка</div></div>'
+    + '<div class="strip-cell"><div class="strip-val" style="color:var(--orange)">' + Math.round(tot.km) + '</div><div class="strip-lbl">Км</div></div>'
+    + '<div class="strip-cell"><div class="strip-val" style="color:var(--purple)">' + hm(tot.road) + '</div><div class="strip-lbl">В дороге</div></div>'
+    + '</div>';
+  sorted.forEach(function(d) { html += renderCard(d); });
+  c.innerHTML = html;
+}
+
+function renderCard(d) {
+  var cv = calcDay(d);
+  var dtype = d.dtype || 'work';
+  var dtCfg = DTYPE[dtype];
+  var isWork = isWorkDay(dtype);
+  var dot = '<span class="card-dot" style="background:' + dtCfg.color + '"></span>';
+  var badge = (!isWork) ? '<span class="dtype-badge" style="background:' + dtCfg.color + '20;color:' + dtCfg.color + '">' + dtCfg.icon + ' ' + dtCfg.label + '</span>' : (dtype !== 'work' ? '<span class="dtype-badge" style="background:' + dtCfg.color + '20;color:' + dtCfg.color + '">' + dtCfg.icon + ' ' + dtCfg.label + '</span>' : '');
+
+  var html = '<div class="card" id="card-' + d.id + '">'
+    + '<div class="card-header">'
+    + '<div style="display:flex;align-items:center">' + dot + '<span class="card-date">' + fmtDate(d.date) + '</span>' + badge + '</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn btn-ghost" onclick="editDay(\'' + d.id + '\')">✎</button>'
+    + '<button class="btn btn-danger" onclick="delDay(\'' + d.id + '\')">✕</button>'
+    + '</div></div>';
+
+  if (!isWork) {
+    html += '<div style="padding:16px;text-align:center;font-size:36px">' + dtCfg.icon + '</div>'
+      + '<div style="text-align:center;color:var(--muted);font-size:13px;padding-bottom:8px">' + dtCfg.label + '</div>'
+      + (d.note ? '<div style="font-size:13px;color:var(--text);padding:10px;background:var(--bg);border-radius:8px">' + d.note + '</div>' : '');
+  } else {
+    var objHTML = '';
+    (d.objects || []).forEach(function(o, i) {
+      var om = (o.ts && o.te) ? toMin(o.te) - toMin(o.ts) : 0;
+      var photosHTML = '<div class="photos-wrap">';
+      (o.photos || []).forEach(function(p, pi) {
+        photosHTML += '<div class="photo-wrap">'
+          + '<img src="' + p + '" class="photo-thumb" onclick="viewPhoto(\'' + p + '\')">'
+          + '<button class="photo-del" onclick="delPhoto(\'' + d.id + '\',\'' + o.id + '\',' + pi + ')">✕</button>'
+          + '</div>';
+      });
+      photosHTML += '<div class="photo-add" onclick="addPhoto(\'' + d.id + '\',\'' + o.id + '\')">📷</div></div>';
+
+      objHTML += '<div class="obj-block">'
+        + '<div class="obj-header"><span class="obj-num">ОБЪЕКТ ' + (i+1) + (o.name ? ' — ' + o.name : '') + '</span>'
+        + '<span class="obj-badge">' + (om > 0 ? hm(om) : '') + '</span></div>'
+        + '<div class="grid2" style="margin-bottom:6px">'
+        + '<div class="field"><label>Начало</label><input type="time" value="' + (o.ts||'') + '" onchange="updObj(\'' + d.id + '\',\'' + o.id + '\',\'ts\',this.value)"></div>'
+        + '<div class="field"><label>Конец</label><input type="time" value="' + (o.te||'') + '" onchange="updObj(\'' + d.id + '\',\'' + o.id + '\',\'te\',this.value)"></div>'
+        + '</div>'
+        + '<div class="grid2" style="margin-bottom:6px">'
+        + '<div class="field"><label>Задача</label><input type="text" value="' + (o.name||'') + '" placeholder="Что делали" onchange="updObj(\'' + d.id + '\',\'' + o.id + '\',\'name\',this.value)"></div>'
+        + '<div class="field"><label>Км до объекта</label><input type="number" value="' + (o.km||'') + '" placeholder="0" onchange="updObj(\'' + d.id + '\',\'' + o.id + '\',\'km\',this.value)"></div>'
+        + '</div>'
+        + '<div class="field" style="margin-bottom:8px"><label>Заметка</label><input type="text" value="' + (o.note||'') + '" placeholder="Доп. инфо" onchange="updObj(\'' + d.id + '\',\'' + o.id + '\',\'note\',this.value)"></div>'
+        + '<div class="slabel" style="margin-bottom:4px">📷 Фото (можно несколько)</div>'
+        + photosHTML + '</div>';
+    });
+
+    var overColor = cv.over > 0 ? 'var(--orange)' : cv.over < 0 ? 'var(--red)' : 'var(--green)';
+    var overBg = cv.over > 0 ? '#f9731615' : cv.over < 0 ? '#ef444415' : '#22c55e15';
+    var overText = cv.over > 0 ? 'Переработка: +' + hm(cv.over) : cv.over < 0 ? 'Недоработка: -' + hm(Math.abs(cv.over)) : '✓ Норма выполнена';
+
+    html += '<div class="section"><div class="slabel">🕐 Рабочий день</div>'
+      + '<div class="grid2" style="margin-bottom:8px">'
+      + '<div class="field"><label>Начало</label><input type="time" value="' + (d.dayStart||'') + '" onchange="updDay(\'' + d.id + '\',\'dayStart\',this.value)"></div>'
+      + '<div class="field"><label>Конец</label><input type="time" value="' + (d.dayEnd||'') + '" onchange="updDay(\'' + d.id + '\',\'dayEnd\',this.value)"></div>'
+      + '</div><div class="grid2">'
+      + '<div class="field"><label>Обед нач.</label><input type="time" value="' + (d.lunchStart||'') + '" onchange="updDay(\'' + d.id + '\',\'lunchStart\',this.value)"></div>'
+      + '<div class="field"><label>Обед кон.</label><input type="time" value="' + (d.lunchEnd||'') + '" onchange="updDay(\'' + d.id + '\',\'lunchEnd\',this.value)"></div>'
+      + '</div></div>'
+      + '<div class="section"><div class="slabel">🚗 Дорога</div><div class="grid2">'
+      + '<div class="field"><label>Доп. км</label><input type="number" value="' + (d.roadKm||'') + '" placeholder="0" onchange="updDay(\'' + d.id + '\',\'roadKm\',this.value)"></div>'
+      + '<div class="field"><label>Мин в дороге</label><input type="number" value="' + (d.roadMin||'') + '" placeholder="0" onchange="updDay(\'' + d.id + '\',\'roadMin\',this.value)"></div>'
+      + '</div></div>'
+      + '<div class="section">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+      + '<div class="slabel" style="margin-bottom:0">📍 Объекты</div>'
+      + '<button class="btn-add" onclick="addObj(\'' + d.id + '\')">+ Объект</button>'
+      + '</div>' + objHTML + '</div>'
+      + '<div style="background:var(--bg);border-radius:10px;padding:12px;border:1px solid var(--border)">'
+      + '<div class="slabel">📊 Итог</div>'
+      + '<div class="result-row"><span class="result-label">На объектах</span><span class="result-val" style="color:var(--cyan)">' + hm(cv.objMin) + '</span></div>'
+      + '<div class="result-row"><span class="result-label">В дороге</span><span class="result-val" style="color:var(--purple)">' + hm(cv.road) + '</span></div>'
+      + '<div class="result-row"><span class="result-label">Обед</span><span class="result-val" style="color:var(--muted)">' + hm(cv.lunch) + '</span></div>'
+      + '<div class="result-row"><span class="result-label">Рабочих часов</span><span class="result-val">' + hm(cv.work) + '</span></div>'
+      + (cv.objKm > 0 ? '<div class="result-row"><span class="result-label">Км по объектам</span><span class="result-val" style="color:var(--orange)">' + cv.objKm + ' км</span></div>' : '')
+      + (d.roadKm ? '<div class="result-row"><span class="result-label">Доп. км</span><span class="result-val" style="color:var(--orange)">' + d.roadKm + ' км</span></div>' : '')
+      + '<div class="over-box" style="background:' + overBg + '"><span style="font-size:13px;font-weight:600;color:' + overColor + '">' + overText + '</span></div>'
+      + '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function renderMonth(c) {
+  var MN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var days = data.filter(function(d) {
+    var dt = new Date(d.date + 'T00:00:00');
+    return dt.getMonth() === curMonth && dt.getFullYear() === curYear;
+  }).sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+  var tot = days.reduce(function(a, d) {
+    var cv = calcDay(d);
+    a.work += cv.work; a.over += cv.over;
+    a.km += (d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0);
+    return a;
+  }, { work:0, over:0, km:0 });
+
+  var oc = tot.over > 0 ? 'var(--orange)' : tot.over < 0 ? 'var(--red)' : 'var(--green)';
+
+  var html = '<div class="month-header">'
+    + '<button class="month-nav" onclick="prevMonth()">‹</button>'
+    + '<div style="font-size:16px;font-weight:700">' + MN[curMonth] + ' ' + curYear + '</div>'
+    + '<button class="month-nav" onclick="nextMonth()">›</button>'
+    + '</div>'
+    + '<div class="month-stats">'
+    + '<div class="stat-box"><div class="val" style="color:var(--cyan)">' + hm(tot.work) + '</div><div class="lbl">Рабочих часов</div></div>'
+    + '<div class="stat-box"><div class="val" style="color:' + oc + '">' + hmsign(tot.over) + '</div><div class="lbl">Переработка</div></div>'
+    + '<div class="stat-box"><div class="val" style="color:var(--orange)">' + Math.round(tot.km) + ' км</div><div class="lbl">Пробег</div></div>'
+    + '<div class="stat-box"><div class="val" style="color:var(--muted)">' + days.length + '</div><div class="lbl">Всего дней</div></div>'
+    + '</div>';
+
+  if (!days.length) {
+    html += '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет записей за этот месяц</div></div>';
+  } else {
+    days.forEach(function(d) {
+      var cv = calcDay(d);
+      var dtype = d.dtype || 'work';
+      var dtCfg = DTYPE[dtype];
+      var iw = isWorkDay(dtype);
+      var rowOc = iw ? (cv.over > 0 ? 'var(--orange)' : cv.over < 0 ? 'var(--red)' : 'var(--green)') : dtCfg.color;
+      var objs = iw ? (d.objects||[]).filter(function(o){return o.name;}).map(function(o){return o.name;}).join(', ') : '';
+      var dKm = (d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0);
+      var photoCount = iw ? (d.objects||[]).reduce(function(s,o){return s+(o.photos||[]).length;},0) : 0;
+      html += '<div class="day-row" onclick="goDay(\'' + d.id + '\')">'
+        + '<div class="day-row-date">' + new Date(d.date + 'T00:00:00').toLocaleDateString('ru-RU', {day:'numeric', month:'short'}) + '</div>'
+        + '<div class="day-row-body">'
+        + '<div class="day-row-hours" style="color:' + dtCfg.color + '">' + dtCfg.icon + ' ' + (iw ? hm(cv.work) : dtCfg.label) + '</div>'
+        + (objs ? '<div class="day-row-sub">' + objs + '</div>' : '')
+        + (dKm > 0 ? '<div class="day-row-sub" style="color:var(--orange)">🚗 ' + dKm + ' км</div>' : '')
+        + (photoCount ? '<div class="day-row-sub">📷 ' + photoCount + ' фото</div>' : '')
+        + '</div>'
+        + '<div class="day-row-over" style="color:' + rowOc + '">' + (iw && cv.over !== 0 ? hmsign(cv.over) : '✓') + '</div>'
+        + '</div>';
+    });
+  }
+  c.innerHTML = html;
+}
+
+function prevMonth() { curMonth--; if (curMonth < 0) { curMonth = 11; curYear--; } render(); }
+function nextMonth() { curMonth++; if (curMonth > 11) { curMonth = 0; curYear++; } render(); }
+function goDay(id) { switchTab('all'); setTimeout(function(){ var el = eid('card-' + id); if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, 100); }
+
+// ---- INLINE EDIT ----
+function updDay(id, field, val) { var d = data.find(function(x){return x.id===id;}); if (d) { d[field] = val; save(); reCard(id); } }
+function updObj(dayId, objId, field, val) { var d = data.find(function(x){return x.id===dayId;}); if (d) { var o = d.objects.find(function(x){return x.id===objId;}); if (o) { o[field] = val; save(); reCard(dayId); } } }
+function addObj(dayId) { var d = data.find(function(x){return x.id===dayId;}); if (d) { d.objects.push({id:Date.now()+'',name:'',ts:'',te:'',km:'',note:'',photos:[]}); save(); reCard(dayId); } }
+function reCard(id) { var d = data.find(function(x){return x.id===id;}); if (!d) return; var el = eid('card-' + id); if (el) { var tmp = document.createElement('div'); tmp.innerHTML = renderCard(d); el.replaceWith(tmp.firstChild); } }
+function delDay(id) { if (!confirm('Удалить этот день?')) return; data = data.filter(function(x){return x.id!==id;}); save(); render(); }
+
+// ---- PHOTOS ----
+function addPhoto(dayId, objId) { photoTargetDayId = dayId; photoTargetObjId = objId; eid('photo-input').click(); }
+
+function onPhotoSelected(e) {
+  var files = Array.from(e.target.files);
+  if (!files.length) return;
+  var d = data.find(function(x){return x.id===photoTargetDayId;});
+  if (!d) return;
+  var o = d.objects.find(function(x){return x.id===photoTargetObjId;});
+  if (!o) return;
+  if (!o.photos) o.photos = [];
+  var processed = 0;
+  files.forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var max = 800; var w = img.width; var h = img.height;
+        if (w > max) { h = Math.round(h * max / w); w = max; }
+        if (h > max) { w = Math.round(w * max / h); h = max; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        o.photos.push(canvas.toDataURL('image/jpeg', 0.7));
+        processed++;
+        if (processed === files.length) { save(); reCard(photoTargetDayId); }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function delPhoto(dayId, objId, idx) {
+  var d = data.find(function(x){return x.id===dayId;});
+  if (!d) return;
+  var o = d.objects.find(function(x){return x.id===objId;});
+  if (!o || !o.photos) return;
+  o.photos.splice(idx, 1); save(); reCard(dayId);
+}
+
+function viewPhoto(src) {
+  var v = document.createElement('div');
+  v.className = 'photo-viewer';
+  v.innerHTML = '<img src="' + src + '"><button class="photo-viewer-close" onclick="this.parentElement.remove()">✕</button>';
+  v.onclick = function(e) { if (e.target === v) v.remove(); };
+  document.body.appendChild(v);
+}
+
+// ---- FORM ----
+function openNewDay() {
+  editId = null;
+  var today = new Date().toISOString().slice(0, 10);
+  formState = { id: Date.now() + '', date: today, dtype: 'work', dayStart: '', dayEnd: '', lunchStart: '', lunchEnd: '', roadKm: '', roadMin: '', note: '', objects: [{ id: Date.now() + 'x', name: '', ts: '', te: '', km: '', note: '', photos: [] }] };
+  eid('day-title').textContent = 'Новый день';
+  eid('day-overlay').classList.add('open');
+  renderForm();
+}
+
+function editDay(id) {
+  editId = id;
+  var d = data.find(function(x){return x.id===id;});
+  if (!d) return;
+  formState = JSON.parse(JSON.stringify(d));
+  eid('day-title').textContent = 'Редактировать день';
+  eid('day-overlay').classList.add('open');
+  renderForm();
+}
+
+function closeDayOverlay() { eid('day-overlay').classList.remove('open'); render(); }
+
+function setFormDtype(dtype) {
+  formState.dtype = dtype;
+  document.querySelectorAll('.dtype-btn').forEach(function(b) { b.style.borderColor = ''; b.style.background = ''; b.style.color = ''; });
+  var btn = eid('dtype-' + dtype);
+  if (btn) { var cfg = DTYPE[dtype]; btn.style.borderColor = cfg.color; btn.style.background = cfg.color.replace(')', '15)').replace('var(', 'color-mix(in srgb, '); }
+  var iw = isWorkDay(dtype);
+  eid('work-fields').style.display = iw ? 'block' : 'none';
+  eid('note-field').style.display = !iw ? 'block' : 'none';
+}
+
+function renderForm() {
+  var d = formState;
+  var dtype = d.dtype || 'work';
+  var iw = isWorkDay(dtype);
+
+  var dtypeBtns = '';
+  Object.keys(DTYPE).forEach(function(k) {
+    var cfg = DTYPE[k];
+    var isActive = dtype === k;
+    var style = isActive ? 'border-color:' + cfg.color + ';color:' + cfg.color + ';background:rgba(128,128,128,0.1)' : 'color:' + cfg.color;
+    dtypeBtns += '<button class="dtype-btn" id="dtype-' + k + '" style="' + style + '" onclick="setFormDtype(\'' + k + '\')">' + cfg.icon + '<br>' + cfg.label + '</button>';
+  });
+
+  var objHTML = '';
+  (d.objects || []).forEach(function(o, i) {
+    objHTML += '<div class="obj-block">'
+      + '<div class="obj-header"><span class="obj-num">ОБЪЕКТ ' + (i+1) + '</span>'
+      + (i > 0 ? '<button class="btn btn-danger" onclick="rmFormObj(\'' + o.id + '\')">✕</button>' : '')
+      + '</div>'
+      + '<div class="grid2" style="margin-bottom:8px">'
+      + '<div class="field"><label>Начало</label><input type="time" value="' + (o.ts||'') + '" onchange="fObj(\'' + o.id + '\',\'ts\',this.value)"></div>'
+      + '<div class="field"><label>Конец</label><input type="time" value="' + (o.te||'') + '" onchange="fObj(\'' + o.id + '\',\'te\',this.value)"></div>'
+      + '</div>'
+      + '<div class="grid2" style="margin-bottom:6px">'
+      + '<div class="field"><label>Задача</label><input type="text" value="' + (o.name||'') + '" placeholder="Что делали" onchange="fObj(\'' + o.id + '\',\'name\',this.value)"></div>'
+      + '<div class="field"><label>Км до объекта</label><input type="number" value="' + (o.km||'') + '" placeholder="0" onchange="fObj(\'' + o.id + '\',\'km\',this.value)"></div>'
+      + '</div>'
+      + '<div class="field"><label>Заметка</label><input type="text" value="' + (o.note||'') + '" placeholder="Доп. инфо" onchange="fObj(\'' + o.id + '\',\'note\',this.value)"></div>'
+      + '</div>';
+  });
+
+  eid('day-form').innerHTML = '<div class="section">'
+    + '<div class="slabel">📅 Дата</div>'
+    + '<div class="field" style="margin-bottom:12px"><input type="date" value="' + (d.date||'') + '" onchange="formState.date=this.value"></div>'
+    + '<div class="slabel">Тип дня</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">' + dtypeBtns + '</div>'
+    + '</div>'
+    + '<div id="note-field" style="display:' + (!iw ? 'block' : 'none') + '" class="section">'
+    + '<div class="field"><label>Заметка</label><input type="text" value="' + (d.note||'') + '" placeholder="Доп. инфо" onchange="formState.note=this.value"></div>'
+    + '</div>'
+    + '<div id="work-fields" style="display:' + (iw ? 'block' : 'none') + '">'
+    + '<div class="section"><div class="slabel">🕐 Рабочий день</div>'
+    + '<div class="grid2" style="margin-bottom:8px">'
+    + '<div class="field"><label>Начало</label><input type="time" value="' + (d.dayStart||'') + '" onchange="formState.dayStart=this.value"></div>'
+    + '<div class="field"><label>Конец</label><input type="time" value="' + (d.dayEnd||'') + '" onchange="formState.dayEnd=this.value"></div>'
+    + '</div><div class="grid2">'
+    + '<div class="field"><label>Обед нач.</label><input type="time" value="' + (d.lunchStart||'') + '" onchange="formState.lunchStart=this.value"></div>'
+    + '<div class="field"><label>Обед кон.</label><input type="time" value="' + (d.lunchEnd||'') + '" onchange="formState.lunchEnd=this.value"></div>'
+    + '</div></div>'
+    + '<div class="section"><div class="slabel">🚗 Дорога</div><div class="grid2">'
+    + '<div class="field"><label>Доп. км</label><input type="number" value="' + (d.roadKm||'') + '" placeholder="0" onchange="formState.roadKm=this.value"></div>'
+    + '<div class="field"><label>Мин в дороге</label><input type="number" value="' + (d.roadMin||'') + '" placeholder="0" onchange="formState.roadMin=this.value"></div>'
+    + '</div></div>'
+    + '<div class="section"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    + '<div class="slabel" style="margin-bottom:0">📍 Объекты</div>'
+    + '<button class="btn-add" onclick="addFormObj()">+ Объект</button>'
+    + '</div>' + objHTML + '</div></div>'
+    + '<button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="saveDay()">💾 Сохранить</button>'
+    + '<div style="height:16px"></div>';
+}
+
+function fObj(id, field, val) { var o = formState.objects.find(function(x){return x.id===id;}); if (o) o[field] = val; }
+function addFormObj() { formState.objects.push({id:Date.now()+'fo',name:'',ts:'',te:'',km:'',note:'',photos:[]}); renderForm(); }
+function rmFormObj(id) { if (formState.objects.length <= 1) return; formState.objects = formState.objects.filter(function(o){return o.id!==id;}); renderForm(); }
+
+function saveDay() {
+  if (editId) {
+    var idx = data.findIndex(function(x){return x.id===editId;});
+    if (idx >= 0) data[idx] = formState;
+  } else {
+    var exists = data.findIndex(function(x){return x.date===formState.date;});
+    if (exists >= 0) {
+      var fmt = new Date(formState.date + 'T00:00:00').toLocaleDateString('ru-RU', {day:'numeric', month:'long'});
+      if (!confirm('За ' + fmt + ' уже есть запись!\nСтарые данные будут заменены. Продолжить?')) return;
+      data[exists] = formState;
+    } else { data.push(formState); }
+  }
+  save();
+  eid('day-overlay').classList.remove('open');
+  var today = new Date().toISOString().slice(0, 10);
+  if (formState.date === today) switchTab('today'); else render();
+}
+
+// ---- EXPORT ----
+function openExport() { updatePeriodInfo(); eid('ex-overlay').classList.add('open'); }
+function closeExport() { eid('ex-overlay').classList.remove('open'); }
+
+function getPeriodDays() {
+  var now = new Date();
+  var from, toD = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (curPeriod === 'month') from = new Date(now.getFullYear(), now.getMonth(), 1);
+  else if (curPeriod === '3m') from = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+  else if (curPeriod === '6m') from = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  else if (curPeriod === 'year') from = new Date(now.getFullYear(), 0, 1);
+  else {
+    var f = eid('range-from').value; var t2 = eid('range-to').value;
+    if (!f || !t2) { alert('Укажи период'); return null; }
+    from = new Date(f + 'T00:00:00'); toD = new Date(t2 + 'T00:00:00');
+  }
+  var fs = from.toISOString().slice(0, 10); var ts = toD.toISOString().slice(0, 10);
+  return data.filter(function(d){return d.date >= fs && d.date <= ts;}).sort(function(a,b){return a.date.localeCompare(b.date);});
+}
+
+function updatePeriodInfo() {
+  var days = getPeriodDays(); var el = eid('period-info'); if (!el || !days) return;
+  var tot = days.reduce(function(a,d){var cv=calcDay(d);a.work+=cv.work;a.over+=cv.over;a.km+=(d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0);return a;},{work:0,over:0,km:0});
+  el.textContent = 'Дней: ' + days.length + ' · ' + hm(tot.work) + ' · Переработка: ' + hmsign(tot.over) + ' · ' + Math.round(tot.km) + ' км';
+}
+
+function countTypes(days) {
+  var cnt = {work:0, trip:0, tripnight:0, rest:0, sick:0, vacation:0};
+  days.forEach(function(d){ var t = d.dtype || 'work'; if (cnt[t] !== undefined) cnt[t]++; });
+  return cnt;
+}
+
+function typeStatsHTML(cnt) {
+  var items = [
+    {key:'work',      label:'Рабочих дней',     icon:'💼', color:'#0284c7', bg:'#e0f2fe'},
+    {key:'trip',      label:'Командировок',      icon:'🚀', color:'#1d4ed8', bg:'#dbeafe'},
+    {key:'tripnight', label:'С ночёвкой',        icon:'🏨', color:'#a16207', bg:'#fef9c3'},
+    {key:'rest',      label:'Выходных',          icon:'🌿', color:'#166534', bg:'#dcfce7'},
+    {key:'sick',      label:'Больничных',        icon:'🤒', color:'#c2410c', bg:'#ffedd5'},
+    {key:'vacation',  label:'Отпуска',           icon:'🌴', color:'#7c3aed', bg:'#ede9fe'},
+  ];
+  var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
+  items.forEach(function(it) {
+    if (cnt[it.key] === 0) return;
+    html += '<div style="background:' + it.bg + ';border-radius:8px;padding:10px 8px;text-align:center">'
+      + '<div style="font-size:20px;margin-bottom:4px">' + it.icon + '</div>'
+      + '<div style="font-size:18px;font-weight:700;color:' + it.color + '">' + cnt[it.key] + '</div>'
+      + '<div style="font-size:10px;color:#555;margin-top:2px">' + it.label + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function typeStatsTxt(cnt) {
+  var items = [
+    {key:'work',      label:'Рабочих дней',  icon:'💼'},
+    {key:'trip',      label:'Командировок',   icon:'🚀'},
+    {key:'tripnight', label:'С ночёвкой',     icon:'🏨'},
+    {key:'rest',      label:'Выходных',       icon:'🌿'},
+    {key:'sick',      label:'Больничных',     icon:'🤒'},
+    {key:'vacation',  label:'Отпуска',        icon:'🌴'},
+  ];
+  var txt = '';
+  items.forEach(function(it){ if (cnt[it.key] > 0) txt += it.icon + ' ' + it.label + ': ' + cnt[it.key] + '\n'; });
+  return txt;
+}
+
+function monthTypeStatsHTML(days) {
+  var cnt = countTypes(days);
+  var items = [
+    {key:'work',      icon:'💼', color:'#0284c7'},
+    {key:'trip',      icon:'🚀', color:'#1d4ed8'},
+    {key:'tripnight', icon:'🏨', color:'#a16207'},
+    {key:'rest',      icon:'🌿', color:'#166534'},
+    {key:'sick',      icon:'🤒', color:'#c2410c'},
+    {key:'vacation',  icon:'🌴', color:'#7c3aed'},
+  ];
+  var html = '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px 12px 8px;background:#f8f8f8;border-bottom:1px solid #e5e7eb">';
+  items.forEach(function(it) {
+    if (cnt[it.key] === 0) return;
+    html += '<span style="background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:2px 10px;font-size:11px;color:' + it.color + ';font-weight:600">'
+      + it.icon + ' ' + cnt[it.key] + '</span>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function doReport(mode, withPhotos) {
+  var days = getPeriodDays();
+  if (!days || !days.length) { alert('За выбранный период записей нет'); return; }
+  var MN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var tot = days.reduce(function(a,d){var cv=calcDay(d);a.work+=cv.work;a.over+=cv.over;a.km+=(d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0);a.road+=cv.road;return a;},{work:0,over:0,km:0,road:0});
+  var cnt = countTypes(days);
+  var f = fmtDateFull(days[0].date); var t2 = fmtDateFull(days[days.length-1].date);
+
+  if (mode === 'share') {
+    var txt = 'РАБОЧИЙ ЖУРНАЛ\n' + f + ' — ' + t2 + '\n' + '—'.repeat(30) + '\n';
+    txt += 'Дней: ' + days.length + '\nЧасов: ' + hm(tot.work) + '\nПереработка: ' + hmsign(tot.over) + '\nПробег: ' + Math.round(tot.km) + ' км\n';
+    txt += typeStatsTxt(cnt) + '\n';
+    days.forEach(function(d) {
+      var cv = calcDay(d); var dtype = d.dtype || 'work'; var dtCfg = DTYPE[dtype];
+      var dt = new Date(d.date + 'T00:00:00').toLocaleDateString('ru-RU', {day:'numeric', month:'short'});
+      if (!isWorkDay(dtype)) { txt += dt + ': ' + dtCfg.icon + ' ' + dtCfg.label + '\n'; }
+      else {
+        var objs = (d.objects||[]).filter(function(o){return o.name;}).map(function(o){return o.name;}).join(', ');
+        var dkm = (d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0);
+        txt += dt + ': ' + hm(cv.work) + (cv.over > 0 ? ' (+' + hm(cv.over) + ')' : cv.over < 0 ? ' (-' + hm(Math.abs(cv.over)) + ')' : '') + (dkm > 0 ? ' · ' + dkm + 'км' : '') + (objs ? ' · ' + objs : '') + '\n';
+      }
+    });
+    if (navigator.share) { navigator.share({title:'Рабочий журнал', text:txt}).catch(function(){copyText(txt);}); }
+    else { copyText(txt); }
+    return;
+  }
+
+  var byMonth = {};
+  days.forEach(function(d) {
+    var dt = new Date(d.date + 'T00:00:00'); var key = dt.getFullYear() + '-' + pad2(dt.getMonth());
+    if (!byMonth[key]) byMonth[key] = { label: MN[dt.getMonth()] + ' ' + dt.getFullYear(), days: [] };
+    byMonth[key].days.push(d);
+  });
+
+  var html = '<div style="font-family:Arial,sans-serif;font-size:12px;color:#111;padding:16px;max-width:700px;margin:0 auto">'
+    + '<h2 style="font-size:16px;margin-bottom:4px">Рабочий журнал</h2>'
+    + '<div style="font-size:11px;color:#666;margin-bottom:14px">' + f + ' — ' + t2 + '</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#f5f5f5;border-radius:8px;padding:12px;margin-bottom:16px">'
+    + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#1d4ed8">' + days.length + '</div><div style="font-size:10px;color:#666">Дней</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#1d4ed8">' + hm(tot.work) + '</div><div style="font-size:10px;color:#666">Часов</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:' + (tot.over > 0 ? '#c2410c' : '#166534') + '">' + hmsign(tot.over) + '</div><div style="font-size:10px;color:#666">Переработка</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#c2410c">' + Math.round(tot.km) + ' км</div><div style="font-size:10px;color:#666">Пробег</div></div>'
+    + '</div>'
+    + '<h3 style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Сводка по типам дней</h3>'
+    + typeStatsHTML(cnt);
+
+  Object.keys(byMonth).forEach(function(k) {
+    var m = byMonth[k];
+    var mt = m.days.reduce(function(a,d){var cv=calcDay(d);a.work+=cv.work;a.over+=cv.over;a.km+=(d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0);return a;},{work:0,over:0,km:0});
+    html += '<div style="margin-bottom:20px">'
+      + '<div style="background:#1d4ed8;color:#fff;padding:6px 12px;border-radius:6px 6px 0 0;font-weight:700">' + m.label + '</div>'
+      + '<div style="background:#e8f0fe;padding:5px 12px;font-size:11px;margin-bottom:6px">Дней: ' + m.days.length + ' · ' + hm(mt.work) + ' · Переработка: ' + hmsign(mt.over) + ' · ' + Math.round(mt.km) + ' км</div>'
+      + '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+      + '<tr style="background:#f0f0f0"><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #ddd">Дата</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #ddd">Тип</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #ddd">Часов</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #ddd">Переработка</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #ddd">Объекты</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #ddd">Км</th></tr>';
+    m.days.forEach(function(d) {
+      var cv = calcDay(d); var dtype = d.dtype || 'work'; var dtCfg = DTYPE[dtype]; var iw = isWorkDay(dtype);
+      var dt = new Date(d.date + 'T00:00:00').toLocaleDateString('ru-RU', {weekday:'short', day:'numeric', month:'short'});
+      var objs = iw ? (d.objects||[]).map(function(o){return o.name||'';}).filter(Boolean).join(', ') : '';
+      var dkm = iw ? (d.objects||[]).reduce(function(s,o){return s+(parseFloat(o.km)||0);},0) : 0;
+      var oc = cv.over > 0 ? '#c2410c' : '#166534';
+      html += '<tr style="border-bottom:1px solid #eee">'
+        + '<td style="padding:5px 8px;font-weight:700">' + dt + '</td>'
+        + '<td style="padding:5px 8px">' + dtCfg.icon + ' ' + dtCfg.label + '</td>'
+        + '<td style="padding:5px 8px">' + (iw ? hm(cv.work) : '—') + '</td>'
+        + '<td style="padding:5px 8px;color:' + oc + ';font-weight:600">' + (iw && cv.over !== 0 ? hmsign(cv.over) : '—') + '</td>'
+        + '<td style="padding:5px 8px">' + (objs || '—') + '</td>'
+        + '<td style="padding:5px 8px">' + (dkm > 0 ? dkm + ' км' : '—') + '</td>'
+        + '</tr>';
+      if (withPhotos && iw) {
+        var allPhotos = [];
+        (d.objects||[]).forEach(function(o){ (o.photos||[]).forEach(function(p){ allPhotos.push({src:p, obj:o.name||'Объект'}); }); });
+        if (allPhotos.length) {
+          html += '<tr><td colspan="6" style="padding:6px 8px;background:#fafafa"><div style="display:flex;flex-wrap:wrap;gap:6px">';
+          allPhotos.forEach(function(p) { html += '<div style="text-align:center"><img src="' + p.src + '" style="width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid #ddd"><div style="font-size:9px;color:#666;margin-top:2px">' + p.obj + '</div></div>'; });
+          html += '</div></td></tr>';
+        }
+      }
+    });
+    html += '</table></div>';
+  });
+  html += '</div>';
+
+  var fs = document.createElement('div');
+  fs.className = 'fullscreen'; fs.id = 'fs-report'; fs.style.background = '#fff';
+  fs.innerHTML = '<div class="fs-bar"><span class="fs-bar-title">📋 Отчёт' + (withPhotos ? ' с фото' : '') + '</span>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="fs-btn-white" onclick="window.print()">🖨️ Печать/PDF</button>'
+    + '<button class="fs-btn" onclick="document.getElementById(\'fs-report\').remove()">✕</button>'
+    + '</div></div><div style="overflow-y:auto;flex:1">' + html + '</div>';
+  document.body.appendChild(fs);
+}
+
+function copyText(txt) {
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(function(){ alert('Скопировано!'); }).catch(function(){ fbCopy(txt); }); }
+  else { fbCopy(txt); }
+}
+function fbCopy(txt) { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Скопировано!'); }
+</script>
+</body>
+</html>
